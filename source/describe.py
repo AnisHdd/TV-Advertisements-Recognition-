@@ -1,5 +1,5 @@
 """
-The main of this scripte is the following.
+The main of this script is the following.
 We assume that we have the database "TVAR" with the tables : avdertisements, descriptors, apparitions
 
 Function 1 :
