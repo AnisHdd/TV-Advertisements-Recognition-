@@ -1,2 +1,4 @@
 mysql~=0.0.3
 mysql-connector-python~=8.0.17
+opencv-python~=4.4.0.42
+ffmpeg~=1.4

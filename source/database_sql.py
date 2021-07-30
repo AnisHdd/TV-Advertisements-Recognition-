@@ -56,8 +56,6 @@ class database(object):
         self.mycursor = self.mydb.cursor()
 
 
-
-
 #####
 # db = database("127.0.0.1", "root", "", "TvAdsReco")
 # db.mycursor.execute("SHOW TABLES")
