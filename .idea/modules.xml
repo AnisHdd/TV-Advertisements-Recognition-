@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$USER_HOME$/CommercialDetection_old/.idea/CommercialDetection.iml" filepath="$USER_HOME$/CommercialDetection_old/.idea/CommercialDetection.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/TV-Advertisements-Recognition-.iml" filepath="$PROJECT_DIR$/.idea/TV-Advertisements-Recognition-.iml" />
+      <module fileurl="file://$USER_HOME$/dejavu copie/.idea/dejavu.iml" filepath="$USER_HOME$/dejavu copie/.idea/dejavu.iml" />
+      <module fileurl="file://$USER_HOME$/Library/Mobile Documents/com~apple~CloudDocs/PycharmProjects/OpenCV/Commercial-detection /src/.idea/src.iml" filepath="$USER_HOME$/Library/Mobile Documents/com~apple~CloudDocs/PycharmProjects/OpenCV/Commercial-detection /src/.idea/src.iml" />
     </modules>
   </component>
 </project>

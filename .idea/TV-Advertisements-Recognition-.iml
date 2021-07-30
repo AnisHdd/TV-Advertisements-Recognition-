@@ -4,5 +4,8 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="jdk" jdkName="Python 3.7" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="dejavu" />
+    <orderEntry type="module" module-name="CommercialDetection" />
+    <orderEntry type="module" module-name="src" />
   </component>
 </module>
