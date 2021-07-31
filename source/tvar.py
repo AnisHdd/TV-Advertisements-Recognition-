@@ -13,12 +13,37 @@ class tvar(object):
         self.db = database("127.0.0.1", "root", "", "TvAdsReco")
 
     def insert_advertisement(self, name, path, ff_descriptor, lf_descriptor, duration):
-        """ add a new ads in channels"""
+        """ add a new ads in advertisement"""
         self.db.mycursor.execute("INSERT INTO advertisements (name,path,ff_descriptor,lf_descriptor,duration) VALUES "
                                  "(%s, %s, %s, %s, %s) "
                                  , (name, path, ff_descriptor, lf_descriptor, duration))
         self.db.commit()
         print(self.db.mycursor.rowcount, "record inserted.")
+    
+    def insert_channel(self, name, url):
+            """ add a new channel in channels"""
+        self.db.mycursor.execute("INSERT INTO channels (name,url) VALUES "
+                                 "(%s, %s) "
+                                 , (name, url))
+        self.db.commit()
+        pass
+    
+    def insert_brand(self, name):
+            """ add a new brand in brands"""
+        self.db.mycursor.execute("INSERT INTO channels (name) VALUES "
+                                 "(%s) "
+                                 , (name))
+        self.db.commit()
+        pass
+
+    def insert_apparition(self, id_advetisements,id_channel,time_start,time_end):
+            """ add a new apparition in apparitions"""
+        self.db.mycursor.execute("INSERT INTO channels (id_advetisements,id_channel,time_start,time_end) VALUES "
+                                 "(%s,%s,%s,%s) "
+                                 , (id_advetisements,id_channel,time_start,time_end))
+        self.db.commit()
+        pass
+
 
     def extract_frames_file(self, path_file):
         """ Extract the first and the last frame from a given ads path"""
