@@ -49,6 +49,9 @@ class database(object):
         self.user = user
         self.password = password
         self.database_name = database_name
+
+
+    def connect(self):
         self.mydb = mysql.connector.connect(
             host=self.host,
             user=self.user,
@@ -56,6 +59,32 @@ class database(object):
             database=self.database_name
         )
         self.mycursor = self.mydb.cursor()
+        return self.mydb;
+    
+    def insert_advertisement(self, name, path, ff_descriptor, lf_descriptor, duration):
+        """ add a new ads in advertisement"""
+        self.mycursor.execute("INSERT INTO advertisements (name,path,ff_descriptor,lf_descriptor,duration) VALUES (%s, %s, %s, %s, %s) " , (name, path, ff_descriptor, lf_descriptor, duration))
+        self.mydb.commit()
+
+    def insert_channel(self, name, url):
+        """ add a new channel in channels"""
+        self.mycursor.execute("INSERT INTO channels (name,url) VALUES (%s, %s) ", (name, url))
+        self.mydb.commit()
+
+    def insert_brand(self, name):
+        """ add a new brand in brands"""
+        self.mycursor.execute("INSERT INTO channels (name) VALUES "
+                                 "(%s) "
+                                 , (name))
+        self.mydb.commit()
+
+    def insert_apparition(self, id_advetisements,id_channel,time_start,time_end):
+        """ add a new apparition in apparitions"""
+        self.mycursor.execute("INSERT INTO channels (id_advetisements,id_channel,time_start,time_end) VALUES "
+                                 "(%s,%s,%s,%s) "
+                                 , (id_advetisements,id_channel,time_start,time_end))
+        self.mydb.commit()
+        
 
 
 #####
