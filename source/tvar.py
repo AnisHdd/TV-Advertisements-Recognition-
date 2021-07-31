@@ -1,60 +1,75 @@
-""" """
 import cv2
 import ntpath
 import os
 import numpy as np
 from database_sql import database
-import pickle
-import mysql.connector
-
 from sys import getsizeof
 import json
+from datetime import datetime
+
 
 
 class tvar(object):
     def __init__(self):
-        self.db = database("127.0.0.1", "root", "", "TvAdsReco")
+        self.db = database("127.0.0.1", "root", "Plop123", "TvAdsReco")
+        self.conn = self.db.connect()
 
-    def insert_advertisement(self, name, path, ff_descriptor, lf_descriptor, duration,date):
-        """ add a new ads in advertisements"""
-        self.db.mycursor.execute("INSERT INTO advertisements (name,path,ff_descriptor,lf_descriptor,duration, "
-                                 "date) VALUES "
-                                 "(%s, %s, %s, %s, %s, %s) "
-                                 , (name, path, ff_descriptor, lf_descriptor, duration))
-        self.db.commit()
-        print(self.db.mycursor.rowcount, "record inserted.")
+    
+    def Json_encode(self,numpy):
 
-    def extract_des_file(self, path_file):
+        return json.dumps(numpy.tolist());
+    
+    def Json_decode(json_bdd):
+
+        return json.loads("".join(json_bdd));
+
+
+    def extract_frames_file(self, path_file):
         """ Extract the first and the last frame from a given ads path"""
         orb = cv2.ORB_create(nfeatures=100)
-        name = ntpath.basename(path_file)
+        #name = ntpath.basename(path_file)
         cap = cv2.VideoCapture(path_file)
         cap.set(1, cap.get(cv2.CAP_PROP_FRAME_COUNT) - 1)
-        _, lf = cap.read()
-        lf = cv2.cvtColor(lf, cv2.COLOR_BGR2GRAY)
-        _, lf_des = orb.detectAndCompute(lf, None)
+        _, last_frame = cap.read()
+        last_frame = cv2.cvtColor(last_frame, cv2.COLOR_BGR2GRAY)
+        _, des_last_frame = orb.detectAndCompute(last_frame, None)
         cap.set(1, 1)
-        _, ff = cap.read()
-        ff = cv2.cvtColor(ff, cv2.COLOR_BGR2GRAY)
-        _, ff_des = orb.detectAndCompute(ff, None)
-        # cv2.imshow("as", lf)
+        _, first_frame = cap.read()
+        first_frame = cv2.cvtColor(first_frame, cv2.COLOR_BGR2GRAY)
+        _, des_first_frame = orb.detectAndCompute(first_frame, None)
+        #duration = cap.get(cv2.CAP_PROP_POS_MSEC)
+        duration = (cap.get(cv2.CAP_PROP_FRAME_COUNT))/cap.get(cv2.CAP_PROP_FPS)
+        # cv2.imshow("as", last_frame)
         # while True:
         #     ch = 0xFF & cv2.waitKey(1)  # Wait for a second
         #     if ch == 27:
         #         break
-        return ff_des, lf_des, name
+        return des_first_frame, des_last_frame, duration
 
 
-    def extract_des_folder(self, path):
+
+
+
+
+
+    def extract_frames_folder(self, path):
         list_ads = os.listdir(path)
         if '.DS_Store' in list_ads:
             list_ads.remove('.DS_Store')
         for i in range(0, np.size(list_ads)):
-            ff_des, lf_des, name = self.extract_des_file(path + "/" + str(list_ads[i]))
-            """"ecrire dans la bdd"""
-            # cv2.imwrite(str(name)+"_"+"ff.jpeg",ff)
-            # cv2.imwrite(str(name)+"_"+"lf.jpeg",lf)
-            print(name)
+
+            des_first_frame, des_last_frame, duration = self.extract_frames_file(path + "/" + str(list_ads[i]))
+            #print(path + "/" + str(list_ads[i]))
+            des_first_frame = self.Json_encode(des_first_frame)
+            des_last_frame = self.Json_encode(des_last_frame)
+
+            insert_advertisement(self, name, path, ff_descriptor, lf_descriptor, duration):
+            #print(type(des_first_frame),type(des_last_frame));
+            # cv2.imwrite(str(name)+"_"+"first_frame.jpeg",first_frame)
+            # cv2.imwrite(str(name)+"_"+"last_frame.jpeg",last_frame)
+            #print()
+    
+
 
 
     def describe(self):
@@ -71,31 +86,17 @@ class tvar(object):
 
 #
 detecteur = tvar()
-ff_des, lf_des, name = detecteur.extract_des_file('/Users/macbookpro/Library/Mobile '
-                                        'Documents/com~apple~CloudDocs/PycharmProjects/OpenCV/Commercial-detection '
-                                        '/src/videos/DjezzyOredoo2.mp4')
+detecteur.extract_frames_folder('/Users/adelmouloua/Movies/tests')
+#detecteur.db.insert_channel("adel", "ééééé")
 
+#print(type(desc_f))
 
-""" Json"""
-#encoder
-# x=json.dumps(ff_des.tolist())
-#decoder
-# y=json.loads(x)
+# json_str = json.dumps(x.tolist())
+# print(print(json_str),type(json_str) ,getsizeof(json_str))
+# x = np.array(json_str)
+# x.reshape(100)
+# print(print(x),type(x) ,getsizeof(x),np.size(x))
 
-# mydb = mysql.connector.connect(
-#     host="127.0.0.1",
-#     user="root",
-#     password="",
-#     database="TvAdsReco"
-# )
-# mycursor = mydb.cursor()
-# sql = "INSERT INTO advertisements (name, path, ff_descriptor, lf_descriptor, duration) VALUES (%s, %s, %s, %s, %s)"
-# val = ("mobilis", "path",  x, x, "curtime()")
-# mycursor.execute(sql, val)
-# mydb.commit()
-
-# mycursor.execute("select ff_descriptor from advertisements where id=1")
-# record = mycursor.fetchone()
-# joined_string = "".join(record)
-# y=json.loads(joined_string)
-# print(y==ff_des)
+# detecteur.db.mycursor.execute("SHOW TABLES")
+# for x in detecteur.db.mycursor:
+#     print(x)

@@ -1,22 +1,24 @@
 import mysql.connector
+
+
 """ Create  mysql database "TvAdsReco" """
 """ Connecte to the database "TvAdsReco" """
 mydb = mysql.connector.connect(
     host="127.0.0.1",
     user="root",
-    password="",
+    password="Plop123",
     database="TvAdsReco"
 )
 mycursor = mydb.cursor()
 
 """
 Create the table "advertisements" 
-Ex : [id*(int20), id_brand(int20), name(VARCHAR(225)), path(VARCHAR(225)) ,ffdes(VARCHAR(225)), lfdes(VARCHAR(225)), duration(VARCHAR(225)), date(VARCHAR(225))]
+Ex : [id*(int20), id_brand(int20), name(VARCHAR(225)), path(VARCHAR(225)) ,ffdes(json), lfdes(json), duration(time), date(timestamp)]
     =[1, 1, mobilis1,...,...,...,...]
      [2, 1, mobilis2,...,...,...,...] 
 """
 mycursor.execute("CREATE TABLE IF NOT EXISTS advertisements(id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), "
-                 "path VARCHAR(255), ff_descriptor JSON, lf_descriptor JSON, duration VARCHAR(255), created_at TIMESTAMP "
+                 "path VARCHAR(255), ff_descriptor JSON, lf_descriptor JSON, duration TIME, created_at TIMESTAMP "
                  "DEFAULT CURRENT_TIMESTAMP)")
 
 """"
@@ -47,6 +49,9 @@ class database(object):
         self.user = user
         self.password = password
         self.database_name = database_name
+
+
+    def connect(self):
         self.mydb = mysql.connector.connect(
             host=self.host,
             user=self.user,
@@ -54,6 +59,32 @@ class database(object):
             database=self.database_name
         )
         self.mycursor = self.mydb.cursor()
+        return self.mydb;
+    
+    def insert_advertisement(self, name, path, ff_descriptor, lf_descriptor, duration):
+        """ add a new ads in advertisement"""
+        self.mycursor.execute("INSERT INTO advertisements (name,path,ff_descriptor,lf_descriptor,duration) VALUES (%s, %s, %s, %s, %s) " , (name, path, ff_descriptor, lf_descriptor, duration))
+        self.mydb.commit()
+
+    def insert_channel(self, name, url):
+        """ add a new channel in channels"""
+        self.mycursor.execute("INSERT INTO channels (name,url) VALUES (%s, %s) ", (name, url))
+        self.mydb.commit()
+
+    def insert_brand(self, name):
+        """ add a new brand in brands"""
+        self.mycursor.execute("INSERT INTO channels (name) VALUES "
+                                 "(%s) "
+                                 , (name))
+        self.mydb.commit()
+
+    def insert_apparition(self, id_advetisements,id_channel,time_start,time_end):
+        """ add a new apparition in apparitions"""
+        self.mycursor.execute("INSERT INTO channels (id_advetisements,id_channel,time_start,time_end) VALUES "
+                                 "(%s,%s,%s,%s) "
+                                 , (id_advetisements,id_channel,time_start,time_end))
+        self.mydb.commit()
+        
 
 
 #####
