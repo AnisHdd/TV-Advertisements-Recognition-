@@ -63,7 +63,7 @@ class tvar(object):
             des_first_frame = self.Json_encode(des_first_frame)
             des_last_frame = self.Json_encode(des_last_frame)
 
-            #insert_advertisement(self, name, path, ff_descriptor, lf_descriptor, duration):
+            insert_advertisement(self, name, path, ff_descriptor, lf_descriptor, duration):
             #print(type(des_first_frame),type(des_last_frame));
             # cv2.imwrite(str(name)+"_"+"first_frame.jpeg",first_frame)
             # cv2.imwrite(str(name)+"_"+"last_frame.jpeg",last_frame)
