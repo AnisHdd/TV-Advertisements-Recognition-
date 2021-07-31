@@ -11,12 +11,12 @@ mycursor = mydb.cursor()
 
 """
 Create the table "advertisements" 
-Ex : [id*(int20), id_brand(int20), name(VARCHAR(225)), path(VARCHAR(225)) ,ffdes(json), lfdes(json), duration(time), date(timestamp)]
+Ex : [id*(int20), id_brand(int20), name(VARCHAR(225)), path(VARCHAR(225)) ,ffdes(VARCHAR(225)), lfdes(VARCHAR(225)), duration(VARCHAR(225)), date(VARCHAR(225))]
     =[1, 1, mobilis1,...,...,...,...]
      [2, 1, mobilis2,...,...,...,...] 
 """
 mycursor.execute("CREATE TABLE IF NOT EXISTS advertisements(id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), "
-                 "path VARCHAR(255), ff_descriptor JSON, lf_descriptor JSON, duration TIME, created_at TIMESTAMP "
+                 "path VARCHAR(255), ff_descriptor JSON, lf_descriptor JSON, duration VARCHAR(255), created_at TIMESTAMP "
                  "DEFAULT CURRENT_TIMESTAMP)")
 
 """"
