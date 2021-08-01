@@ -56,7 +56,8 @@ class database(object):
             host=self.host,
             user=self.user,
             password=self.password,
-            database=self.database_name
+            database=self.database_name,
+            buffered=True
         )
         self.mycursor = self.mydb.cursor()
         return self.mydb;
@@ -65,6 +66,13 @@ class database(object):
         """ add a new ads in advertisement"""
         self.mycursor.execute("INSERT INTO advertisements (name,path,ff_descriptor,lf_descriptor,duration,hash) VALUES (%s, %s, %s, %s, %s, %s) " , (name, path, ff_descriptor, lf_descriptor, duration, hash))
         self.mydb.commit()
+
+    def check_duplicate(self, hash_file):
+        """ add a new channel in channels"""
+        self.mycursor.execute("SELECT  hash  FROM advertisements WHERE hash like %s ", (hash_file,))
+        return self.mycursor.fetchone()
+        # return mycursor.fetchone()
+        #self.mydb.commit()
 
     def insert_channel(self, name, url):
         """ add a new channel in channels"""
