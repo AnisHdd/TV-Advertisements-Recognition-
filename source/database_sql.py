@@ -18,7 +18,7 @@ Ex : [id*(int20), id_brand(int20), name(VARCHAR(225)), path(VARCHAR(225)) ,ffdes
      [2, 1, mobilis2,...,...,...,...] 
 """
 mycursor.execute("CREATE TABLE IF NOT EXISTS advertisements(id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), "
-                 "path VARCHAR(255), ff_descriptor JSON, lf_descriptor JSON, duration TIME, created_at TIMESTAMP "
+                 "path VARCHAR(255), ff_descriptor JSON, lf_descriptor JSON, duration TIME, hash VARCHAR(255) ,created_at TIMESTAMP "
                  "DEFAULT CURRENT_TIMESTAMP)")
 
 """"
@@ -60,10 +60,10 @@ class database(object):
         )
         self.mycursor = self.mydb.cursor()
         return self.mydb;
-    
-    def insert_advertisement(self, name, path, ff_descriptor, lf_descriptor, duration):
+
+    def insert_advertisement(self, name, path, ff_descriptor, lf_descriptor, duration, hash):
         """ add a new ads in advertisement"""
-        self.mycursor.execute("INSERT INTO advertisements (name,path,ff_descriptor,lf_descriptor,duration) VALUES (%s, %s, %s, %s, %s) " , (name, path, ff_descriptor, lf_descriptor, duration))
+        self.mycursor.execute("INSERT INTO advertisements (name,path,ff_descriptor,lf_descriptor,duration,hash) VALUES (%s, %s, %s, %s, %s, %s) " , (name, path, ff_descriptor, lf_descriptor, duration, hash))
         self.mydb.commit()
 
     def insert_channel(self, name, url):
@@ -84,7 +84,7 @@ class database(object):
                                  "(%s,%s,%s,%s) "
                                  , (id_advetisements,id_channel,time_start,time_end))
         self.mydb.commit()
-        
+
 
 
 #####
