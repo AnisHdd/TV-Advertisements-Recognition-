@@ -118,13 +118,11 @@ class TAR(object):
             # print("/n")
             # print(des_current_frame)
             threshold = self.found_match(des_frame, des_current_frame)
+            id_ads = None
             if threshold > thresh:
-                print("match found")
-                return ads[0]  # id of ads
-            else:
-                # print("nothing found")
-                pass
-                # return None  #todo le probleme est dans le None
+                id_ads = ads[0]
+                print("found match")
+        return id_ads  #todo le probleme est dans le None
 
     def found_last_match(self, id_ads, current_frame, thresh=0.80):
         des_current_frame = self.create_descriptor(current_frame)
