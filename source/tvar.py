@@ -107,10 +107,11 @@ class TAR(object):
 
     def found_first_match(self, current_frame, column="ff_descriptor", thresh=0.80):
         des_current_frame = self.create_descriptor(current_frame)
+        id_ads = None
         for ads in self.db.get_all_advertisements(column):
             # print(ads[0])
             # print("/n")
-            print(ads)
+            # print(ads)
             # print("/n")
             # print(len(self.db.get_all_advertisements(column)))
             des_frame = self.Json_decode(ads[1])
@@ -118,10 +119,9 @@ class TAR(object):
             # print("/n")
             # print(des_current_frame)
             threshold = self.found_match(des_frame, des_current_frame)
-            id_ads = None
             if threshold > thresh:
                 id_ads = ads[0]
-                print("found match")
+                # print("found match")
         return id_ads  #todo le probleme est dans le None
 
     def found_last_match(self, id_ads, current_frame, thresh=0.80):
@@ -129,11 +129,10 @@ class TAR(object):
         des_last_frame = self.db.get_advertisement_des(id_ads)
         des_last_frame = self.Json_decode(des_last_frame)
         threshold = self.found_match(des_last_frame, des_current_frame)
+        id_ad = None
         if threshold > thresh:
-            return id_ads  # Todo inscrire dans la bdd
-        else:
-            # print("nothing found")
-            return None
+            id_ad = id_ads # Todo inscrire dans la bdd
+        return id_ad
 
     def read_video(self, cap):
         _, current_frame = cap.read()
@@ -156,13 +155,14 @@ class TAR(object):
                     print("Looking for the last frame")
                     current_frame = self.read_video(cap)
                     if self.found_last_match(id_ads, current_frame) is not None:
-                        print("end found")
+                        print("found last")
+
         # return print("start time, end time ")
 
 
 detecteur = TAR()
 # detecteur.extract_des_folder("/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/videos")
-img = cv2.imread("../frames/Dima Ooredoo خير بدل جدد.mp4_first_frame.jpeg")
-print(detecteur.found_first_match(img))
+# img = cv2.imread("../frames/Dima Ooredoo خير بدل جدد.mp4_first_frame.jpeg")
+# print(detecteur.found_first_match(img))
 # print(detecteur.)
-# detecteur.recognize("../videos/Dima Ooredoo خير بدل جدد.mp4")
+detecteur.recognize("../videos/DjezzyOredoo.mp4")
