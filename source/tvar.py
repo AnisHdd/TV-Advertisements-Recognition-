@@ -18,23 +18,26 @@ class TAR(object):
 
     @staticmethod
     def Json_encode(numpy1, numpy2):
-
         return json.dumps(numpy1.tolist()), json.dumps(numpy2.tolist())
 
-    def Json_decode(json_bdd):
-
-        return json.loads("".join(json_bdd))
+    @staticmethod
+    def Json_decode(frame_descriptor):
+        """ """
+        return np.array(json.loads("".join(frame_descriptor)),dtype=np.uint8)
 
     @staticmethod
     def frames_hash(frame1, frame2, hashSize=8):
         """image should be black and white"""
-        frame1 = cv2.resize(frame1, (426, 240))    #Todo rajouter une fonction qui convertit tous les fichiers en mp4 et resize en (426, 240).
+        frame1 = cv2.resize(frame1, (
+        426, 240))  # Todo rajouter une fonction qui convertit tous les fichiers en mp4 et resize en (426, 240).
         resized1 = cv2.resize(frame1, (hashSize + 1, hashSize))
         diff1 = resized1[:, 1:] > resized1[:, :-1]
-        frame2 = cv2.resize(frame2, (426, 240))    #Todo rajouter une fonction qui convertit tous les fichiers en mp4 et resize en (426, 240).
+        frame2 = cv2.resize(frame2, (
+        426, 240))  # Todo rajouter une fonction qui convertit tous les fichiers en mp4 et resize en (426, 240).
         resized2 = cv2.resize(frame2, (hashSize + 1, hashSize))
         diff2 = resized2[:, 1:] > resized2[:, :-1]
-        return sum([2 ** i for (i, v) in enumerate(diff1.flatten()) if v]), sum([2 ** i for (i, v) in enumerate(diff2.flatten()) if v])
+        return sum([2 ** i for (i, v) in enumerate(diff1.flatten()) if v]), sum(
+            [2 ** i for (i, v) in enumerate(diff2.flatten()) if v])
 
     @staticmethod
     def get_frames(cap):
@@ -44,6 +47,7 @@ class TAR(object):
         _, last_frame = cap.read()
         # first_frame = cv2.resize(first_frame, (426, 240))
         return cv2.cvtColor(first_frame, cv2.COLOR_BGR2GRAY), cv2.cvtColor(last_frame, cv2.COLOR_BGR2GRAY)
+
     #
     # def get_last_frame(self, cap):
     #
@@ -86,9 +90,9 @@ class TAR(object):
                 des_first_frame, des_last_frame = self.Json_encode(des_first_frame, des_last_frame)
                 self.db.insert_advertisement(ads, path + "/" + ads, des_first_frame, des_last_frame,
                                              duration, hash_file)
-                print("The advertisement {} was added {} seconds".format(ads,time.time()- start))
+                print("The advertisement {} was added {} seconds".format(ads, time.time() - start))
 
-        print("All advertisements have been added in {} seconds".format(time.time()- start))
+        print("All advertisements have been added in {} seconds".format(time.time() - start))
 
     def recognize(self):
         """entree video --- > chercher dans la bdd avdertisement la publicite et remplir la table apparitions
@@ -97,45 +101,35 @@ class TAR(object):
         """
         pass
 
-    @staticmethod
-    def found_match(des_frame,current_frame, thresh=0.80):
-        """ - des_frame: should be given from  the table advertisements
-            - current_frame: is the actual frame in the video"""
+    # @staticmethod
+    def found_match(self, column, current_frame, thresh=0.80):
         orb = cv2.ORB_create(nfeatures=100)
-        bf = cv2.BFMatcher(cv2.NORM_HAMMING2)
+        # current_frame = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
         _, des_current_frame = orb.detectAndCompute(current_frame, None)
-        matches = bf.knnMatch(des_frame, des_current_frame, k=2)
-        good = []
-        for m, n in matches:
-            if m.distance < 0.80 * n.distance:
-                good.append([m])
-        threshold = len(good) / len(des_frame)
-        if threshold > thresh:
-             print("similar")
-            # findEnd=True
-        # print(findEnd)
-        return print("found match  or not ", "if yes give the id of the ads")
+        bf = cv2.BFMatcher(cv2.NORM_HAMMING2)
+        # bf = cv2.BFMatcher(cv2.NORM_INF)
 
+        """"""
+        """ - column: first of last descriptors
+            - current_frame: is the actual frame in the video"""
+        for ads in self.db.get_all_advertisements(column):
+            des_frame = self.Json_decode(ads[1])
+            matches = bf.knnMatch(des_frame, des_current_frame, k=2)
+            good = []
+            for m, n in matches:
+                if m.distance < 0.80 * n.distance:
+                    good.append([m])
+            threshold = len(good) / len(des_frame)
+            if threshold > thresh:
+                print("match found")
+                return ads[0]
+            else:
+                print("nothing found")
+                # return False
 
 #
 detecteur = TAR()
-detecteur.extract_des_folder("/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/videos")
+img = cv2.imread(
+    "/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/frames/DjezzyOredoo.mp4_first_frame.jpeg")
+print(detecteur.found_match("ff_descriptor", img))
 
-# if detecteur.db.check_duplicate(6026277995680978239868082074056418304):
-#     print("hash already exists")
-# else :
-#     print("insert ......")
-# print (resultat, type(resultat))
-# # detecteur.db.insert_channel("adel", "ééééé")
-
-# print(type(desc_f))
-
-# json_str = json.dumps(x.tolist())
-# print(print(json_str),type(json_str) ,getsizeof(json_str))
-# x = np.array(json_str)
-# x.reshape(100)
-# print(print(x),type(x) ,getsizeof(x),np.size(x))
-
-# detecteur.db.mycursor.execute("SHOW TABLES")
-# for x in detecteur.db.mycursor:
-#     print(x)

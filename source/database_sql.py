@@ -66,12 +66,23 @@ class database(object):
         """ add a new ads in advertisement"""
         self.mycursor.execute("INSERT INTO advertisements (name,path,ff_descriptor,lf_descriptor,duration,hash) VALUES (%s, %s, %s, %s, %s, %s) " , (name, path, ff_descriptor, lf_descriptor, duration, hash))
         self.mydb.commit()
+        return  mycursor.close()
+
+    def get_all_advertisements(self, column):
+        """ Give the descriptor "id" encoded in the column column"""
+        self.mycursor.execute("SELECT id, " + column + " FROM advertisements")
+        return self.mycursor.fetchall()
+
+    # def get_advertisement_des(self, column, id):
+    #     """ Give the descriptor "id" encoded in the column column"""
+    #     self.mycursor.execute("SELECT "+column+" FROM advertisements WHERE id like %s", (id,))
+    #     result = self.mycursor.fetchone()
+    #     return result
 
     def check_duplicate(self, hash_file):
         """ add a new channel in channels"""
         self.mycursor.execute("SELECT  hash  FROM advertisements WHERE hash like %s ", (hash_file,))
         return self.mycursor.fetchone()
-        # return mycursor.fetchone()
         #self.mydb.commit()
 
     def insert_channel(self, name, url):
