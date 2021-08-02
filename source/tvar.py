@@ -56,7 +56,7 @@ class TAR(object):
     @staticmethod
     def found_match(des_frame, des_current_frame):
         bf = cv2.BFMatcher(cv2.NORM_HAMMING2)
-        matches = bf.knnMatch(des_frame, des_current_frame, k=2) 
+        matches = bf.knnMatch(des_frame, des_current_frame, k=2)
         good = []
         for m, n in matches:
             if m.distance < 0.80 * n.distance:
@@ -71,9 +71,9 @@ class TAR(object):
         cap = cv2.VideoCapture(path_file)
         first_frame, last_frame = self.get_frames(cap)
         """ Wrinting the frames in frames directory """
-        # ads = os.path.basename(path_file)
-        # cv2.imwrite("/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/frames/"+ads+"_"+"first_frame.jpeg", first_frame)
-        # cv2.imwrite("/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/frames/"+ads+"_"+"last_frame.jpeg", last_frame)
+        ads = os.path.basename(path_file)
+        cv2.imwrite("/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/frames/"+ads+"_"+"first_frame.jpeg", first_frame)
+        cv2.imwrite("/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/frames/"+ads+"_"+"last_frame.jpeg", last_frame)
         first_frame_hash, last_frame_hash = self.frames_hash(first_frame, last_frame)
         _, des_last_frame = orb.detectAndCompute(last_frame, None)
         _, des_first_frame = orb.detectAndCompute(first_frame, None)
@@ -104,23 +104,56 @@ class TAR(object):
 
         print("All advertisements have been added in {} seconds".format(time.time() - start))
 
-    def found_first_match(self, column, current_frame, thresh=0.80):
+    def found_first_match(self, current_frame, column="ff_descriptor", thresh=0.80):
         des_current_frame = self.create_descriptor(current_frame)
         for ads in self.db.get_all_advertisements(column):
             des_frame = self.Json_decode(ads[1])
             threshold = self.found_match(des_frame, des_current_frame)
             if threshold > thresh:
                 print("match found")
-                return ads[0]
+                return ads[0]  # id of ads
             else:
-                print("nothing found")
+                # print("nothing found")
                 return None
 
-    def found_last_match(self, id, current_frame,thresh=0.80 ):
-        return print(" time match")
+    def found_last_match(self, id_ads, current_frame, thresh=0.80):
+        des_current_frame = self.create_descriptor(current_frame)
+        des_last_frame = self.db.get_advertisement_des(id_ads)
+        des_last_frame = self.Json_decode(des_last_frame)
+        threshold = self.found_match(des_last_frame, des_current_frame)
+        if threshold > thresh:
+            return id_ads  # Todo inscrire dans la bdd
+        else:
+            # print("nothing found")
+            return None
+
+    def read_video(self, cap):
+        _, current_frame = cap.read()
+        current_frame = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
+        cv2.imshow('frame', current_frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            exit()
+        return current_frame
+
+    def recognize(self, path_file):
+        orb = cv2.ORB_create(nfeatures=100)
+        cap = cv2.VideoCapture(path_file,0)
+        while True:
+            current_frame= self.read_video(cap)
+            id_ads = self.found_first_match(current_frame)
+            if id_ads is not None:
+                start = time.time()
+                print(start)
+                while True:  # codition sur la fin
+                    print("Looking for the last frame")
+                    current_frame = self.read_video(cap)
+                    if self.found_last_match(id_ads, current_frame) is not None:
+                        print("end found")
+        # return print("start time, end time ")
 
 
 detecteur = TAR()
-img = cv2.imread(
-    "/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/frames/DjezzyOredoo.mp4_first_frame.jpeg")
-print(detecteur.found_first_match("ff_descriptor", img))
+# detecteur.extract_des_folder("/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/videos")
+img = cv2.imread("../frames/Dima Ooredoo خير بدل جدد.mp4_first_frame.jpeg")
+print(detecteur.found_first_match(img))
+# detecteur.recognize("../videos/Dima Ooredoo خير بدل جدد.mp4")

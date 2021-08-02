@@ -69,15 +69,14 @@ class database(object):
         return  mycursor.close()
 
     def get_all_advertisements(self, column):
-        """ Give the descriptor "id" encoded in the column column"""
+        """ Give the descriptor and "id" encoded in the column column"""
         self.mycursor.execute("SELECT id, " + column + " FROM advertisements")
         return self.mycursor.fetchall()
 
-    # def get_advertisement_des(self, column, id):
-    #     """ Give the descriptor "id" encoded in the column column"""
-    #     self.mycursor.execute("SELECT "+column+" FROM advertisements WHERE id like %s", (id,))
-    #     result = self.mycursor.fetchone()
-    #     return result
+    def get_advertisement_des(self, id_ads):
+        """ Give the descriptor "id" encoded in the column column"""
+        self.mycursor.execute("SELECT lf_descriptor FROM advertisements WHERE id like %s", (id_ads,))
+        return self.mycursor.fetchone()
 
     def check_duplicate(self, hash_file):
         """ add a new channel in channels"""
