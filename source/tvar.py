@@ -49,6 +49,7 @@ class TAR(object):
 
     @staticmethod
     def create_descriptor(frame, nfeatures=100):
+        # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         orb = cv2.ORB_create(nfeatures)
         _, des_frame = orb.detectAndCompute(frame, None)
         return des_frame
@@ -107,14 +108,23 @@ class TAR(object):
     def found_first_match(self, current_frame, column="ff_descriptor", thresh=0.80):
         des_current_frame = self.create_descriptor(current_frame)
         for ads in self.db.get_all_advertisements(column):
+            # print(ads[0])
+            # print("/n")
+            print(ads)
+            # print("/n")
+            # print(len(self.db.get_all_advertisements(column)))
             des_frame = self.Json_decode(ads[1])
+            # print(des_frame)
+            # print("/n")
+            # print(des_current_frame)
             threshold = self.found_match(des_frame, des_current_frame)
             if threshold > thresh:
                 print("match found")
                 return ads[0]  # id of ads
             else:
                 # print("nothing found")
-                return None
+                pass
+                # return None  #todo le probleme est dans le None
 
     def found_last_match(self, id_ads, current_frame, thresh=0.80):
         des_current_frame = self.create_descriptor(current_frame)
@@ -156,4 +166,5 @@ detecteur = TAR()
 # detecteur.extract_des_folder("/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/videos")
 img = cv2.imread("../frames/Dima Ooredoo خير بدل جدد.mp4_first_frame.jpeg")
 print(detecteur.found_first_match(img))
+# print(detecteur.)
 # detecteur.recognize("../videos/Dima Ooredoo خير بدل جدد.mp4")
