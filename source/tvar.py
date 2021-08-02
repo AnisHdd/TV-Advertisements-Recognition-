@@ -23,17 +23,17 @@ class TAR(object):
     @staticmethod
     def Json_decode(frame_descriptor):
         """ """
-        return np.array(json.loads("".join(frame_descriptor)),dtype=np.uint8)
+        return np.array(json.loads("".join(frame_descriptor)), dtype=np.uint8)
 
     @staticmethod
     def frames_hash(frame1, frame2, hashSize=8):
         """image should be black and white"""
         frame1 = cv2.resize(frame1, (
-        426, 240))  # Todo rajouter une fonction qui convertit tous les fichiers en mp4 et resize en (426, 240).
+            426, 240))  # Todo rajouter une fonction qui convertit tous les fichiers en mp4 et resize en (426, 240).
         resized1 = cv2.resize(frame1, (hashSize + 1, hashSize))
         diff1 = resized1[:, 1:] > resized1[:, :-1]
         frame2 = cv2.resize(frame2, (
-        426, 240))  # Todo rajouter une fonction qui convertit tous les fichiers en mp4 et resize en (426, 240).
+            426, 240))  # Todo rajouter une fonction qui convertit tous les fichiers en mp4 et resize en (426, 240).
         resized2 = cv2.resize(frame2, (hashSize + 1, hashSize))
         diff2 = resized2[:, 1:] > resized2[:, :-1]
         return sum([2 ** i for (i, v) in enumerate(diff1.flatten()) if v]), sum(
@@ -45,14 +45,24 @@ class TAR(object):
         _, first_frame = cap.read()
         cap.set(1, cap.get(cv2.CAP_PROP_FRAME_COUNT) - 1)
         _, last_frame = cap.read()
-        # first_frame = cv2.resize(first_frame, (426, 240))
         return cv2.cvtColor(first_frame, cv2.COLOR_BGR2GRAY), cv2.cvtColor(last_frame, cv2.COLOR_BGR2GRAY)
 
-    #
-    # def get_last_frame(self, cap):
-    #
-    #     # last_frame = cv2.resize(last_frame, (426, 240))
-    #     return cv2.cvtColor(last_frame, cv2.COLOR_BGR2GRAY)
+    @staticmethod
+    def create_descriptor(frame, nfeatures=100):
+        orb = cv2.ORB_create(nfeatures)
+        _, des_frame = orb.detectAndCompute(frame, None)
+        return des_frame
+
+    @staticmethod
+    def found_match(des_frame, des_current_frame):
+        bf = cv2.BFMatcher(cv2.NORM_HAMMING2)
+        matches = bf.knnMatch(des_frame, des_current_frame, k=2) 
+        good = []
+        for m, n in matches:
+            if m.distance < 0.80 * n.distance:
+                good.append([m])
+        threshold = len(good) / len(des_frame)
+        return threshold
 
     def extract_des_file(self, path_file):
         """ Extract the descriptors of the first and the last frame from a given ads path"""
@@ -94,26 +104,11 @@ class TAR(object):
 
         print("All advertisements have been added in {} seconds".format(time.time() - start))
 
-    def recognize(self):
-        """entree video --- > chercher dans la bdd avdertisement la publicite et remplir la table apparitions
-        Function qui cherche si deux image match : input(des_first_frame in advertisement, des_first_frame in currente video
-        ) ---> output id of the des_first_frame match
-        """
-        pass
-
-    # @staticmethod
-    def found_First_match(self, column, current_frame, thresh=0.80):
-        orb = cv2.ORB_create(nfeatures=100) #TODO faire une fonction
-        _, des_current_frame = orb.detectAndCompute(current_frame, None)
-        bf = cv2.BFMatcher(cv2.NORM_HAMMING2)
+    def found_first_match(self, column, current_frame, thresh=0.80):
+        des_current_frame = self.create_descriptor(current_frame)
         for ads in self.db.get_all_advertisements(column):
             des_frame = self.Json_decode(ads[1])
-            matches = bf.knnMatch(des_frame, des_current_frame, k=2) #TODO cherche match du debut
-            good = []
-            for m, n in matches:
-                if m.distance < 0.80 * n.distance:
-                    good.append([m])
-            threshold = len(good) / len(des_frame)
+            threshold = self.found_match(des_frame, des_current_frame)
             if threshold > thresh:
                 print("match found")
                 return ads[0]
@@ -121,12 +116,11 @@ class TAR(object):
                 print("nothing found")
                 return None
 
-
-
+    def found_last_match(self, id, current_frame,thresh=0.80 ):
+        return print(" time match")
 
 
 detecteur = TAR()
 img = cv2.imread(
     "/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/frames/DjezzyOredoo.mp4_first_frame.jpeg")
-print(detecteur.found_First_match("ff_descriptor", img))
-
+print(detecteur.found_first_match("ff_descriptor", img))
