@@ -102,19 +102,13 @@ class TAR(object):
         pass
 
     # @staticmethod
-    def found_match(self, column, current_frame, thresh=0.80):
-        orb = cv2.ORB_create(nfeatures=100)
-        # current_frame = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
+    def found_First_match(self, column, current_frame, thresh=0.80):
+        orb = cv2.ORB_create(nfeatures=100) #TODO faire une fonction
         _, des_current_frame = orb.detectAndCompute(current_frame, None)
         bf = cv2.BFMatcher(cv2.NORM_HAMMING2)
-        # bf = cv2.BFMatcher(cv2.NORM_INF)
-
-        """"""
-        """ - column: first of last descriptors
-            - current_frame: is the actual frame in the video"""
         for ads in self.db.get_all_advertisements(column):
             des_frame = self.Json_decode(ads[1])
-            matches = bf.knnMatch(des_frame, des_current_frame, k=2)
+            matches = bf.knnMatch(des_frame, des_current_frame, k=2) #TODO cherche match du debut
             good = []
             for m, n in matches:
                 if m.distance < 0.80 * n.distance:
@@ -125,11 +119,14 @@ class TAR(object):
                 return ads[0]
             else:
                 print("nothing found")
-                # return False
+                return None
 
-#
+
+
+
+
 detecteur = TAR()
 img = cv2.imread(
     "/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/frames/DjezzyOredoo.mp4_first_frame.jpeg")
-print(detecteur.found_match("ff_descriptor", img))
+print(detecteur.found_First_match("ff_descriptor", img))
 
