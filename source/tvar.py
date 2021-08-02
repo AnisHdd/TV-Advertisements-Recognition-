@@ -16,13 +16,14 @@ class TAR(object):
         self.db = database("127.0.0.1", "root", "", "TvAdsReco")
         self.conn = self.db.connect()
 
-    def Json_encode(self, numpy1, numpy2):
+    @staticmethod
+    def Json_encode(numpy1, numpy2):
 
         return json.dumps(numpy1.tolist()), json.dumps(numpy2.tolist())
 
-    # def Json_decode(json_bdd):
-    # 
-    #     return json.loads("".join(json_bdd))
+    def Json_decode(json_bdd):
+
+        return json.loads("".join(json_bdd))
 
     @staticmethod
     def frames_hash(frame1, frame2, hashSize=8):
@@ -90,13 +91,36 @@ class TAR(object):
         print("All advertisements have been added in {} seconds".format(time.time()- start))
 
     def recognize(self):
-        """entree video --- > chercher dans la bdd avdertisement la publicite et remplir la table apparitions """
+        """entree video --- > chercher dans la bdd avdertisement la publicite et remplir la table apparitions
+        Function qui cherche si deux image match : input(des_first_frame in advertisement, des_first_frame in currente video
+        ) ---> output id of the des_first_frame match
+        """
         pass
+
+    @staticmethod
+    def found_match(des_frame,current_frame, thresh=0.80):
+        """ - des_frame: should be given from  the table advertisements
+            - current_frame: is the actual frame in the video"""
+        orb = cv2.ORB_create(nfeatures=100)
+        bf = cv2.BFMatcher(cv2.NORM_HAMMING2)
+        _, des_current_frame = orb.detectAndCompute(current_frame, None)
+        matches = bf.knnMatch(des_frame, des_current_frame, k=2)
+        good = []
+        for m, n in matches:
+            if m.distance < 0.80 * n.distance:
+                good.append([m])
+        threshold = len(good) / len(des_frame)
+        if threshold > thresh:
+             print("similar")
+            # findEnd=True
+        # print(findEnd)
+        return print("found match  or not ", "if yes give the id of the ads")
 
 
 #
 detecteur = TAR()
 detecteur.extract_des_folder("/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/videos")
+
 # if detecteur.db.check_duplicate(6026277995680978239868082074056418304):
 #     print("hash already exists")
 # else :
