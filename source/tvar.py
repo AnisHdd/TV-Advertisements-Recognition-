@@ -92,7 +92,8 @@ class TAR(object):
         _, des_last_frame = orb.detectAndCompute(last_frame, None)
         _, des_first_frame = orb.detectAndCompute(first_frame, None)
         hash_file = np.int(str(first_frame_hash) + str(last_frame_hash))
-        duration = (cap.get(cv2.CAP_PROP_FRAME_COUNT)) / cap.get(cv2.CAP_PROP_FPS)
+        duration = round(cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS), 3)
+
         # cv2.imshow("as", first_frame)
         # while True:
         #     ch = 0xFF & cv2.waitKey(1)  # Wait for a second
@@ -162,9 +163,11 @@ class TAR(object):
                     while True:  # codition sur la fin
                         print("Looking for the last frame")
                         current_frame = self.read_video(cap)
+                        # img = cv2.imread("../frames/DjezzyOredoo.mp4_last_frame.jpeg")
+                        # print(np.sum(img == current_frame))
                         print(self.found_last_match(id_ads, current_frame), id_ads)
                         if self.found_last_match(id_ads, current_frame) is not None:
-                            # print("found last")
+                            print("found last")
                             break
         except:
             print("Finish reading")
@@ -178,11 +181,29 @@ detecteur = TAR()
 # img = cv2.imread("../frames/Dima Ooredoo خير بدل جدد.mp4_first_frame.jpeg")
 # print(detecteur.found_first_match(img))
 # print(detecteur.)
-# detecteur.recognize("../videos/DjezzyOredoo.mp4")
-detecteur.recognize("../videos/Dima Ooredoo خير بدل جدد.mp4")
+# detecteur.recognize("../videos/mobylys-ytmn-lkm-aayd-mbark-o-kl-aaam-o-antm-bkhyr-sh-aaydkm-aayd-aladh-almbark.mp4")
+# detecteur.recognize("../videos/Dima Ooredoo خير بدل جدد.mp4")
 
 # id_ads = 1
 # des_last_frame = detecteur.db.get_advertisement_des(id_ads)
 # des_last_frame = detecteur.Json_decode(des_last_frame)
-img = cv2.imread("../frames/DjezzyOredoo.mp4_last_frame.jpeg")
-detecteur.found_last_match(1, img)
+# img = cv2.imread("/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/frames/mobylys-ytmn-lkm-aayd-mbark-o-kl-aaam-o-antm-bkhyr-sh-aaydkm-aayd-aladh-almbark.mp4_last_frame.jpeg")
+# detecteur.found_last_match(4, img)
+
+cap = cv2.VideoCapture("../videos/mobylys-ytmn-lkm-aayd-mbark-o-kl-aaam-o-antm-bkhyr-sh-aaydkm-aayd-aladh-almbark.mp4")
+#,cv2.CAP_AVFOUNDATION)
+time_length = 30.0
+fps=25
+frame_seq = 749
+frame_no = (frame_seq /(time_length*fps))
+cap.set(1, cap.get(cv2.CAP_PROP_FRAME_COUNT) - 300)
+ret, frame= cap.read()
+cv2.imshow("A",frame)
+while True:
+    ch = 0xFF & cv2.waitKey(1) # Wait for a second
+    if ch == 27:
+        break
+# fps = int(cap.get(5))
+# print("fps:", fps)
+# while True:
+#     detecteur.read_video(cap)

@@ -64,7 +64,7 @@ class database(object):
 
     def insert_advertisement(self, name, path, ff_descriptor, lf_descriptor, duration, hash):
         """ add a new ads in advertisement"""
-        self.mycursor.execute("INSERT INTO advertisements (name,path,ff_descriptor,lf_descriptor,duration,hash) VALUES (%s, %s, %s, %s, %s, %s) " , (name, path, ff_descriptor, lf_descriptor, duration, hash))
+        self.mycursor.execute("INSERT IGNORE INTO advertisements (name,path,ff_descriptor,lf_descriptor,duration,hash) VALUES (%s, %s, %s, %s, %s, %s) " , (name, path, ff_descriptor, lf_descriptor, duration, hash))
         self.mydb.commit()
         return  mycursor.close()
 
