@@ -43,13 +43,13 @@ class TAR(object):
     def get_frames(cap):
         cap.set(1, 1)
         _, first_frame = cap.read()
-        cap.set(1, cap.get(cv2.CAP_PROP_FRAME_COUNT) - 1)
+        cap.set(1, cap.get(cv2.CAP_PROP_FRAME_COUNT) - 300)
         _, last_frame = cap.read()
         return cv2.cvtColor(first_frame, cv2.COLOR_BGR2GRAY), cv2.cvtColor(last_frame, cv2.COLOR_BGR2GRAY)
 
     @staticmethod
     def create_descriptor(frame, nfeatures=100):
-        # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         orb = cv2.ORB_create(nfeatures)
         _, des_frame = orb.detectAndCompute(frame, None)
         return des_frame
@@ -65,6 +65,15 @@ class TAR(object):
         threshold = len(good) / len(des_frame)
         return threshold
 
+    @staticmethod
+    def read_video(cap):
+        _, current_frame = cap.read()
+        # current_frame = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
+        cv2.imshow('frame', current_frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            exit()
+        return current_frame
+
     def extract_des_file(self, path_file):
         """ Extract the descriptors of the first and the last frame from a given ads path"""
         """last frame"""
@@ -73,8 +82,12 @@ class TAR(object):
         first_frame, last_frame = self.get_frames(cap)
         """ Wrinting the frames in frames directory """
         ads = os.path.basename(path_file)
-        cv2.imwrite("/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/frames/"+ads+"_"+"first_frame.jpeg", first_frame)
-        cv2.imwrite("/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/frames/"+ads+"_"+"last_frame.jpeg", last_frame)
+        cv2.imwrite(
+            "/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/frames/" + ads + "_" + "first_frame.jpeg",
+            first_frame)
+        cv2.imwrite(
+            "/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/frames/" + ads + "_" + "last_frame.jpeg",
+            last_frame)
         first_frame_hash, last_frame_hash = self.frames_hash(first_frame, last_frame)
         _, des_last_frame = orb.detectAndCompute(last_frame, None)
         _, des_first_frame = orb.detectAndCompute(first_frame, None)
@@ -122,7 +135,7 @@ class TAR(object):
             if threshold > thresh:
                 id_ads = ads[0]
                 # print("found match")
-        return id_ads  #todo le probleme est dans le None
+        return id_ads  # todo le probleme est dans le None
 
     def found_last_match(self, id_ads, current_frame, thresh=0.80):
         des_current_frame = self.create_descriptor(current_frame)
@@ -130,32 +143,32 @@ class TAR(object):
         des_last_frame = self.Json_decode(des_last_frame)
         threshold = self.found_match(des_last_frame, des_current_frame)
         id_ad = None
+        print(threshold)
         if threshold > thresh:
-            id_ad = id_ads # Todo inscrire dans la bdd
+            id_ad = id_ads  # Todo inscrire dans la bdd
+            print("last frame found")
         return id_ad
 
-    def read_video(self, cap):
-        _, current_frame = cap.read()
-        current_frame = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
-        cv2.imshow('frame', current_frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            exit()
-        return current_frame
-
     def recognize(self, path_file):
-        orb = cv2.ORB_create(nfeatures=100)
-        cap = cv2.VideoCapture(path_file,0)
-        while True:
-            current_frame= self.read_video(cap)
-            id_ads = self.found_first_match(current_frame)
-            if id_ads is not None:
-                start = time.time()
-                print(start)
-                while True:  # codition sur la fin
-                    print("Looking for the last frame")
-                    current_frame = self.read_video(cap)
-                    if self.found_last_match(id_ads, current_frame) is not None:
-                        print("found last")
+        cap = cv2.VideoCapture(path_file)
+        try:
+            while True:
+                current_frame = self.read_video(cap)
+                id_ads = self.found_first_match(current_frame)
+                print("reading ")
+                if id_ads is not None:
+                    start = time.time()
+                    print(start)
+                    while True:  # codition sur la fin
+                        print("Looking for the last frame")
+                        current_frame = self.read_video(cap)
+                        print(self.found_last_match(id_ads, current_frame), id_ads)
+                        if self.found_last_match(id_ads, current_frame) is not None:
+                            # print("found last")
+                            break
+        except:
+            print("Finish reading")
+
 
         # return print("start time, end time ")
 
@@ -165,4 +178,11 @@ detecteur = TAR()
 # img = cv2.imread("../frames/Dima Ooredoo خير بدل جدد.mp4_first_frame.jpeg")
 # print(detecteur.found_first_match(img))
 # print(detecteur.)
-detecteur.recognize("../videos/DjezzyOredoo.mp4")
+# detecteur.recognize("../videos/DjezzyOredoo.mp4")
+detecteur.recognize("../videos/Dima Ooredoo خير بدل جدد.mp4")
+
+# id_ads = 1
+# des_last_frame = detecteur.db.get_advertisement_des(id_ads)
+# des_last_frame = detecteur.Json_decode(des_last_frame)
+img = cv2.imread("../frames/DjezzyOredoo.mp4_last_frame.jpeg")
+detecteur.found_last_match(1, img)
