@@ -43,7 +43,7 @@ class TAR(object):
     def get_frames(cap):
         cap.set(1, 1)
         _, first_frame = cap.read()
-        cap.set(1, cap.get(cv2.CAP_PROP_FRAME_COUNT) - 300)
+        cap.set(1, cap.get(cv2.CAP_PROP_FRAME_COUNT) - 25)
         _, last_frame = cap.read()
         return cv2.cvtColor(first_frame, cv2.COLOR_BGR2GRAY), cv2.cvtColor(last_frame, cv2.COLOR_BGR2GRAY)
 
@@ -56,7 +56,7 @@ class TAR(object):
 
     @staticmethod
     def found_match(des_frame, des_current_frame):
-        bf = cv2.BFMatcher(cv2.NORM_HAMMING2)
+        bf = cv2.BFMatcher(cv2.NORM_HAMMING)
         matches = bf.knnMatch(des_frame, des_current_frame, k=2)
         good = []
         for m, n in matches:
@@ -138,72 +138,79 @@ class TAR(object):
                 # print("found match")
         return id_ads  # todo le probleme est dans le None
 
-    def found_last_match(self, id_ads, current_frame, thresh=0.80):
-        des_current_frame = self.create_descriptor(current_frame)
+    def found_last_des(self, id_ads, current_frame, thresh=0.80):
+        # des_current_frame = self.create_descriptor(current_frame)
         des_last_frame = self.db.get_advertisement_des(id_ads)
         des_last_frame = self.Json_decode(des_last_frame)
-        threshold = self.found_match(des_last_frame, des_current_frame)
-        id_ad = None
-        print(threshold)
-        if threshold > thresh:
-            id_ad = id_ads  # Todo inscrire dans la bdd
-            print("last frame found")
-        return id_ad
+        # threshold = self.found_match(des_last_frame, des_current_frame)
+        # id_ad = None
+        # print(threshold)
+        # if threshold > thresh:
+        #     id_ad = id_ads  # Todo inscrire dans la bdd
+        #     print("last frame found")
+        return des_last_frame
 
     def recognize(self, path_file):
         cap = cv2.VideoCapture(path_file)
+        bf = cv2.BFMatcher(cv2.NORM_HAMMING)
+        count = 0
         try:
             while True:
+                count = count+1
                 current_frame = self.read_video(cap)
                 id_ads = self.found_first_match(current_frame)
                 print("reading ")
                 if id_ads is not None:
-                    start = time.time()
-                    print(start)
-                    while True:  # codition sur la fin
-                        print("Looking for the last frame")
+                    print(time.time())
+                    des_last_frame = self.found_last_des(id_ads, current_frame)
+                    while True:
+                        count = count + 1
+                        print("Looking for the last frame in",count,"/",cap.get(cv2.CAP_PROP_FRAME_COUNT))
                         current_frame = self.read_video(cap)
-                        # img = cv2.imread("../frames/DjezzyOredoo.mp4_last_frame.jpeg")
-                        # print(np.sum(img == current_frame))
-                        print(self.found_last_match(id_ads, current_frame), id_ads)
-                        if self.found_last_match(id_ads, current_frame) is not None:
-                            print("found last")
+                        des_current_frame = self.create_descriptor(current_frame)
+                        """"""
+                        # matches = bf.knnMatch(des_current_frame, des_last_frame, k=2)
+                        # good = []
+                        # for m, n in matches:
+                        #     if m.distance < 0.80 * n.distance:
+                        #         good.append([m])
+                        # threshold = len(good) / len(des_last_frame)
+                        # if threshold > .80:
+                        #     print("Last frame found in {}".format(count))
+                        #     break
+                        """"""
+                        threshold = self.found_match(des_last_frame,des_current_frame)
+                        if threshold > .80:
+                            print("Last frame found in {}".format(count))
                             break
+                        """"""
         except:
             print("Finish reading")
 
 
         # return print("start time, end time ")
 
-
 detecteur = TAR()
 # detecteur.extract_des_folder("/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/videos")
-# img = cv2.imread("../frames/Dima Ooredoo خير بدل جدد.mp4_first_frame.jpeg")
-# print(detecteur.found_first_match(img))
-# print(detecteur.)
-# detecteur.recognize("../videos/mobylys-ytmn-lkm-aayd-mbark-o-kl-aaam-o-antm-bkhyr-sh-aaydkm-aayd-aladh-almbark.mp4")
 # detecteur.recognize("../videos/Dima Ooredoo خير بدل جدد.mp4")
-
+# detecteur.recognize("../videos/DjezzyOredoo.mp4")
+# detecteur.recognize("../videos/lactofibre-rkm-1-fy-algzayr.mp4")
+detecteur.recognize("../videos/mobylys-ytmn-lkm-aayd-mbark-o-kl-aaam-o-antm-bkhyr-sh-aaydkm-aayd-aladh-almbark.mp4")
+# DjezzyOredoo.mp4
 # id_ads = 1
 # des_last_frame = detecteur.db.get_advertisement_des(id_ads)
 # des_last_frame = detecteur.Json_decode(des_last_frame)
 # img = cv2.imread("/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/frames/mobylys-ytmn-lkm-aayd-mbark-o-kl-aaam-o-antm-bkhyr-sh-aaydkm-aayd-aladh-almbark.mp4_last_frame.jpeg")
-# detecteur.found_last_match(4, img)
+# detecteur.found_last_des(4, img)
 
-cap = cv2.VideoCapture("../videos/mobylys-ytmn-lkm-aayd-mbark-o-kl-aaam-o-antm-bkhyr-sh-aaydkm-aayd-aladh-almbark.mp4")
-#,cv2.CAP_AVFOUNDATION)
-time_length = 30.0
-fps=25
-frame_seq = 749
-frame_no = (frame_seq /(time_length*fps))
-cap.set(1, cap.get(cv2.CAP_PROP_FRAME_COUNT) - 300)
-ret, frame= cap.read()
-cv2.imshow("A",frame)
-while True:
-    ch = 0xFF & cv2.waitKey(1) # Wait for a second
-    if ch == 27:
-        break
+# cap = cv2.VideoCapture("../videos/mobylys-ytmn-lkm-aayd-mbark-o-kl-aaam-o-antm-bkhyr-sh-aaydkm-aayd-aladh-almbark.mp4")
+# #
+# cap.set(cv2.CAP_PROP_FPS, 35)
 # fps = int(cap.get(5))
-# print("fps:", fps)
+# print("fps:", fps, cap.get(cv2.CAP_PROP_FRAME_COUNT))
 # while True:
-#     detecteur.read_video(cap)
+#     ret, frame = cap.read()
+#     cv2.imshow("A", frame)
+#     ch = 0xFF & cv2.waitKey(55) # Wait for a second
+#     if ch == 27:
+#         break
