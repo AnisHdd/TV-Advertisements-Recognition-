@@ -165,24 +165,24 @@ class TAR(object):
                     des_last_frame = self.found_last_des(id_ads, current_frame)
                     while True:
                         count = count + 1
-                        print("Looking for the last frame in",count,"/",cap.get(cv2.CAP_PROP_FRAME_COUNT))
+                        print("Looking for the last frame in",count,"/")
                         current_frame = self.read_video(cap)
                         des_current_frame = self.create_descriptor(current_frame)
                         """"""
-                        # matches = bf.knnMatch(des_current_frame, des_last_frame, k=2)
-                        # good = []
-                        # for m, n in matches:
-                        #     if m.distance < 0.80 * n.distance:
-                        #         good.append([m])
-                        # threshold = len(good) / len(des_last_frame)
-                        # if threshold > .80:
-                        #     print("Last frame found in {}".format(count))
-                        #     break
-                        """"""
-                        threshold = self.found_match(des_last_frame,des_current_frame)
+                        matches = bf.knnMatch(des_current_frame, des_last_frame, k=2)
+                        good = []
+                        for m, n in matches:
+                            if m.distance < 0.80 * n.distance:
+                                good.append([m])
+                        threshold = len(good) / len(des_last_frame)
                         if threshold > .80:
                             print("Last frame found in {}".format(count))
                             break
+                        """"""
+                        # threshold = self.found_match(des_last_frame, des_current_frame)
+                        # if threshold > .80:
+                        #     print("Last frame found in {}".format(count))
+                        #     break
                         """"""
         except:
             print("Finish reading")
@@ -195,7 +195,8 @@ detecteur = TAR()
 # detecteur.recognize("../videos/Dima Ooredoo خير بدل جدد.mp4")
 # detecteur.recognize("../videos/DjezzyOredoo.mp4")
 # detecteur.recognize("../videos/lactofibre-rkm-1-fy-algzayr.mp4")
-detecteur.recognize("../videos/mobylys-ytmn-lkm-aayd-mbark-o-kl-aaam-o-antm-bkhyr-sh-aaydkm-aayd-aladh-almbark.mp4")
+# detecteur.recognize("../videos/mobylys-ytmn-lkm-aayd-mbark-o-kl-aaam-o-antm-bkhyr-sh-aaydkm-aayd-aladh-almbark.mp4")
+detecteur.recognize("/Users/macbookpro/PycharmProjects/TV-Advertisements-Recognition-/stream/DjezzyOredoo.m3u8")
 # DjezzyOredoo.mp4
 # id_ads = 1
 # des_last_frame = detecteur.db.get_advertisement_des(id_ads)
